@@ -6,21 +6,19 @@
  * http://opensource.org/licenses/mit-license.php
  */
 
-import com.jfrog.bintray.gradle.BintrayExtension.PackageConfig
-import com.jfrog.bintray.gradle.BintrayExtension.VersionConfig
+// import com.jfrog.bintray.gradle.BintrayExtension.PackageConfig
+// import com.jfrog.bintray.gradle.BintrayExtension.VersionConfig
 import org.gradle.api.publish.maven.MavenPom
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Date
 import java.nio.file.Paths
 
 plugins {
-    id("com.jfrog.bintray")
     id("maven-publish")
     id("java-library")
     id("com.gradle.plugin-publish")
     kotlin("jvm")
     id("java-gradle-plugin")
-    //id("com.novoda.bintray-release")
     id("org.jetbrains.dokka")
     //jacoco
 }
@@ -30,8 +28,8 @@ version = "2.0.0"
 
 repositories {
     mavenCentral()
-    maven("https://dl.bintray.com/kotlin/exposed")
     maven("https://jitpack.io")
+    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
 }
 
 dependencies {
@@ -60,6 +58,8 @@ dependencies {
 
     implementation("org.reflections:reflections:0.9.11")
 
+    // Latest version of kotlinx-html
+    implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.3")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
@@ -129,34 +129,6 @@ pluginBundle {
 }
 
 val githubUrl = "https://github.com/KenjiOhtsuka/harmonica"
-bintray {
-    user = System.getenv("BINTRAY_USER")
-    key = System.getenv("BINTRAY_KEY")
-    pkg(closureOf<PackageConfig> {
-        repo = "m"
-        name = "Harmonica"
-        userOrg = "kenjiohtsuka"
-        setLicenses("GPL-3.0")
-        vcsUrl = githubUrl
-
-        version(closureOf<VersionConfig> {
-            name = project.version as String
-            released = Date().toString()
-            vcsTag = project.version as String
-        })
-    })
-}
-
-// for Bintray (jcenter)
-//publish {
-//    userOrg = "kenjiohtsuka"
-//    groupId = project.group
-//    artifactId = "harmonica" // project.artifacts
-//    publishVersion = project.version
-//    desc = "Kotlin Database Migration Took"
-//    website = "https://github.com/KenjiOhtsuka/harmonica"
-//    //repoName = ""
-//}
 
 val pomConfig: MavenPom.() -> Unit = {
     description.set("Kotlin Database Migration Tool")
@@ -186,23 +158,42 @@ val pomConfig: MavenPom.() -> Unit = {
 // Create the publication with the pom configuration:
 publishing {
     publications {
-        register<MavenPublication>("MyPublication") {
-            from(components.getByName("java"))
-            artifact("sourcesJar")
-            artifact("javadocJar")
-            groupId = "com.improve_future"
-            artifactId = "harmonica"
-            version = project.version as String
-            pomConfig(pom)
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            artifact(tasks["sourcesJar"])
+            artifact(tasks["javadocJar"])
+            
+            pom {
+                name.set("Harmonica")
+                description.set("Kotlin Database Migration Tool")
+                url.set("https://github.com/KenjiOhtsuka/harmonica")
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("http://opensource.org/licenses/mit-license.php")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("kenjiohtsuka")
+                        name.set("Kenji Otsuka")
+                        email.set("kok.fdcm@gmail.com")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/KenjiOhtsuka/harmonica")
+                }
+            }
         }
-        register<MavenPublication>("GradlePublication") {
-            from(components.getByName("java"))
-            artifact("sourcesJar")
-            artifact("javadocJar")
-            groupId = "com.improve_future.harmonica"
-            artifactId = "gradle-plugin"
-            version = project.version as String
-            pomConfig(pom)
+    }
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
         }
     }
 }
