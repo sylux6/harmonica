@@ -6,8 +6,6 @@
  * http://opensource.org/licenses/mit-license.php
  */
 
-// import com.jfrog.bintray.gradle.BintrayExtension.PackageConfig
-// import com.jfrog.bintray.gradle.BintrayExtension.VersionConfig
 import org.gradle.api.publish.maven.MavenPom
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Date
