@@ -9,12 +9,14 @@ version rootProject.version
 
 repositories {
     mavenCentral()
-    jcenter()
+    maven {
+        url "https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven"
+    }
 }
 
 dependencies {
-    // Fill this in with the version of kotlinx in use in your project
-    def kotlinx_html_version = "0.6.11"
+    // Update kotlinx_html version to build
+    def kotlinx_html_version = "0.7.3"
     // include for server side
     implementation "org.jetbrains.kotlinx:kotlinx-html-jvm:${kotlinx_html_version}"
     implementation 'org.codehaus.groovy:groovy-all:2.3.11'
